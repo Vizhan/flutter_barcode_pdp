@@ -33,9 +33,6 @@ class BarCodes extends StatefulWidget {
 class BarCodesState extends State<BarCodes> {
   DbHelper _db = DbHelper();
   final scaffoldKey = new GlobalKey<ScaffoldState>();
-  final formKey = new GlobalKey<FormState>();
-
-  final List<String> _saved = <String>[];
 
   String barcode = "";
 
@@ -133,8 +130,6 @@ class BarCodesState extends State<BarCodes> {
       String barcode = await BarcodeScanner.scan();
 
       setState(() {
-//        _saved.add(barcode);
-
         var barCode = BarCode(barcode);
         _db.saveBarCode(barCode);
 
