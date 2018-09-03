@@ -80,7 +80,6 @@ class BarCodesState extends State<BarCodes> {
                       return new ListTile(
                         leading: const Icon(Icons.crop_free),
                         title: new Text(snapshot.data[index]),
-                        trailing: new Icon(Icons.close),
                       );
                     });
               }
