@@ -67,6 +67,12 @@ class BarCodesState extends State<BarCodes> {
           new FutureBuilder<List<String>>(
             future: fetchBarCodesFromDatabase(),
             builder: (context, snapshot) {
+              if (snapshot.data.length == 0) {
+                return new Center(
+                  child: Text("There is bar codes yet"),
+                );
+              }
+
               if (snapshot.hasData) {
                 return new ListView.builder(
                     itemCount: snapshot.data.length,
@@ -78,11 +84,6 @@ class BarCodesState extends State<BarCodes> {
                       );
                     });
               }
-              return new Text("No Data found");
-//              return new Container(
-//                alignment: AlignmentDirectional.center,
-//                child: new CircularProgressIndicator(),
-//              );
             },
           ),
 //          _buildBarCodesList(),
@@ -99,34 +100,11 @@ class BarCodesState extends State<BarCodes> {
     );
   }
 
-  Widget _buildBarCodesList() {
-    final Iterable<ListTile> tiles = _saved.map(
-          (String pair) {
-        return new ListTile(
-          leading: const Icon(Icons.crop_free),
-          title: new Text(pair),
-          trailing: new Icon(Icons.close),
-        );
-      },
-    );
-
-    final List<Widget> divided = ListTile
-        .divideTiles(
-      context: context,
-      tiles: tiles,
-    )
-        .toList();
-
-    return ListView(padding: const EdgeInsets.all(16.0), children: divided);
-  }
-
   void _pushSaved() {
     Navigator.of(context).push(
       new MaterialPageRoute<void>(
         builder: (BuildContext context) {
-          final scaffold = new GlobalKey<ScaffoldState>();
           return new Scaffold(
-              key: scaffoldKey,
               // Add 6 lines from here...
               appBar: new AppBar(
                 title: const Text('Settings'),
@@ -134,13 +112,11 @@ class BarCodesState extends State<BarCodes> {
               body: new Center(
                 child: new RaisedButton(
                   padding: const EdgeInsets.all(20.0),
-                  child: const Text("Nuke database"),
+                  child: const Text("Clear database"),
                   elevation: 6.0,
                   textColor: Colors.black,
                   color: Colors.amber,
-                  onPressed: () {
-                    _nukeData;
-                  }
+                  onPressed: _nukeData,
                 ),
               ));
         },
@@ -151,8 +127,6 @@ class BarCodesState extends State<BarCodes> {
   void _nukeData() {
     var dbHelper = DbHelper();
     dbHelper.nukeDatabase();
-
-    _showSnackBar("Cleared");
   }
 
   Future scan() async {
@@ -165,27 +139,22 @@ class BarCodesState extends State<BarCodes> {
         var barCode = BarCode(barcode);
         _db.saveBarCode(barCode);
 
-        _showSnackBar("Data saved successfully");
+        _showSnackBar("Bar code saved");
 
         this.barcode = barcode;
       });
     } on PlatformException catch (e) {
       if (e.code == BarcodeScanner.CameraAccessDenied) {
         setState(() {
-          _saved.add(barcode);
           this.barcode = 'The user did not grant the camera permission!';
         });
       } else {
-        _saved.add(barcode);
         setState(() => this.barcode = 'Unknown error: $e');
       }
     } on FormatException {
-      _saved.add(barcode);
-      setState(() =>
-      this.barcode =
-      'null (User returned using the "back"-button before scanning anything. Result)');
+      setState(() => this.barcode =
+          'null (User returned using the "back"-button before scanning anything. Result)');
     } catch (e) {
-      _saved.add(barcode);
       setState(() => this.barcode = 'Unknown error: $e');
     }
   }
