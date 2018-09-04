@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 
 import 'package:barcode_scan/barcode_scan.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dbhelper.dart';
 import 'barcode.dart';
+import 'secondscreen.dart';
 
 void main() => runApp(new MyApp());
 
@@ -34,8 +34,6 @@ class BarCodesState extends State<BarCodes> {
   DbHelper _db = DbHelper();
   final scaffoldKey = new GlobalKey<ScaffoldState>();
 
-  String barcode = "";
-
   @override
   void initState() {
     super.initState();
@@ -56,7 +54,13 @@ class BarCodesState extends State<BarCodes> {
         title: new Text('Barcode Scanner'),
         actions: <Widget>[
           new IconButton(
-              icon: const Icon(Icons.settings), onPressed: _pushSaved),
+              icon: const Icon(Icons.settings),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => SecondScreen()),
+                );
+              }),
         ],
       ),
       body: new Stack(
@@ -66,7 +70,7 @@ class BarCodesState extends State<BarCodes> {
             builder: (context, snapshot) {
               if (snapshot.data.length == 0) {
                 return new Center(
-                  child: Text("There is bar codes yet"),
+                  child: Text("There is no bar codes yet"),
                 );
               }
 
@@ -82,7 +86,6 @@ class BarCodesState extends State<BarCodes> {
               }
             },
           ),
-//          _buildBarCodesList(),
           new Container(
             alignment: const Alignment(1.0, 1.0),
             padding: const EdgeInsets.all(32.0),
@@ -96,60 +99,26 @@ class BarCodesState extends State<BarCodes> {
     );
   }
 
-  void _pushSaved() {
-    Navigator.of(context).push(
-      new MaterialPageRoute<void>(
-        builder: (BuildContext context) {
-          return new Scaffold(
-              // Add 6 lines from here...
-              appBar: new AppBar(
-                title: const Text('Settings'),
-              ),
-              body: new Center(
-                child: new RaisedButton(
-                  padding: const EdgeInsets.all(20.0),
-                  child: const Text("Clear database"),
-                  elevation: 6.0,
-                  textColor: Colors.black,
-                  color: Colors.amber,
-                  onPressed: _nukeData,
-                ),
-              ));
-        },
-      ),
-    );
-  }
-
-  void _nukeData() {
-    var dbHelper = DbHelper();
-    dbHelper.nukeDatabase();
-  }
-
   Future scan() async {
     try {
       String barcode = await BarcodeScanner.scan();
+      _showSnackBar("Bar code saved");
 
       setState(() {
         var barCode = BarCode(barcode);
         _db.saveBarCode(barCode);
-
-        _showSnackBar("Bar code saved");
-
-        this.barcode = barcode;
       });
     } on PlatformException catch (e) {
       if (e.code == BarcodeScanner.CameraAccessDenied) {
-        setState(() {
-          this.barcode = 'The user did not grant the camera permission!';
-        });
+        _showSnackBar('The user did not grant the camera permission!');
       } else {
-        setState(() => this.barcode = 'Unknown error: $e');
+        _showSnackBar('Unknown error: $e');
       }
     } on FormatException {
-      setState(() => this.barcode =
+      _showSnackBar(
           'null (User returned using the "back"-button before scanning anything. Result)');
     } catch (e) {
-      setState(() => this.barcode = 'Unknown error: $e');
+      _showSnackBar('Unknown error: $e');
     }
   }
 
