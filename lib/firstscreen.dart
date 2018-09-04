@@ -8,9 +8,9 @@ import 'dbhelper.dart';
 import 'barcode.dart';
 import 'secondscreen.dart';
 
-void main() => runApp(new MyApp());
+void main() => runApp(new BarCodeApp());
 
-class MyApp extends StatelessWidget {
+class BarCodeApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return new MaterialApp(
@@ -24,8 +24,6 @@ class MyApp extends StatelessWidget {
 }
 
 class BarCodes extends StatefulWidget {
-  BarCodes({Key key}) : super(key: key);
-
   @override
   BarCodesState createState() => new BarCodesState();
 }
@@ -63,38 +61,30 @@ class BarCodesState extends State<BarCodes> {
               }),
         ],
       ),
-      body: new Stack(
-        children: <Widget>[
-          new FutureBuilder<List<String>>(
-            future: fetchBarCodesFromDatabase(),
-            builder: (context, snapshot) {
-              if (snapshot.data.length == 0) {
-                return new Center(
-                  child: Text("There is no bar codes yet"),
-                );
-              }
+      body: new FutureBuilder<List<String>>(
+        future: fetchBarCodesFromDatabase(),
+        builder: (context, snapshot) {
+          if (snapshot.data.length == 0) {
+            return new Center(
+              child: Text("There is no bar codes yet"),
+            );
+          }
 
-              if (snapshot.hasData) {
-                return new ListView.builder(
-                    itemCount: snapshot.data.length,
-                    itemBuilder: (context, index) {
-                      return new ListTile(
-                        leading: const Icon(Icons.crop_free),
-                        title: new Text(snapshot.data[index]),
-                      );
-                    });
-              }
-            },
-          ),
-          new Container(
-            alignment: const Alignment(1.0, 1.0),
-            padding: const EdgeInsets.all(32.0),
-            child: new FloatingActionButton(
-              onPressed: scan,
-              child: const Icon(Icons.filter_center_focus),
-            ),
-          ),
-        ],
+          if (snapshot.hasData) {
+            return new ListView.builder(
+                itemCount: snapshot.data.length,
+                itemBuilder: (context, index) {
+                  return new ListTile(
+                    leading: const Icon(Icons.crop_free),
+                    title: new Text(snapshot.data[index]),
+                  );
+                });
+          }
+        },
+      ),
+      floatingActionButton: new FloatingActionButton(
+        onPressed: scan,
+        child: const Icon(Icons.filter_center_focus),
       ),
     );
   }

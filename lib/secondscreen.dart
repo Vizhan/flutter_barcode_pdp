@@ -11,7 +11,12 @@ class SecondScreen extends StatelessWidget {
         appBar: new AppBar(
           title: const Text('Settings'),
         ),
+
+
         body: new Center(
+
+
+
           child: new RaisedButton(
             padding: const EdgeInsets.all(20.0),
             child: const Text("Clear database"),
@@ -23,7 +28,8 @@ class SecondScreen extends StatelessWidget {
               _showSnackBar("Database cleared");
             },
           ),
-        ));
+        )
+    );
   }
 
   void _clearDatabase() {
