@@ -7,10 +7,14 @@ import 'package:flutter/services.dart';
 import 'dbhelper.dart';
 import 'barcode.dart';
 import 'secondscreen.dart';
+import 'anim.dart';
 
 void main() => runApp(new BarCodeApp());
 
+//void main() => runApp(new AnimApp()); // animation
+
 class BarCodeApp extends StatelessWidget {
+
   @override
   Widget build(BuildContext context) {
     return new MaterialApp(
