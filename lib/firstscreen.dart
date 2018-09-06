@@ -64,6 +64,7 @@ class BarCodesState extends State<BarCodes> {
       body: new FutureBuilder<List<String>>(
         future: fetchBarCodesFromDatabase(),
         builder: (context, snapshot) {
+          if (snapshot.data == null) return new Container();
           if (snapshot.data.length == 0) {
             return new Center(
               child: Text("There is no bar codes yet"),
